@@ -30,26 +30,28 @@ When you create a Claude Project, you have two places to add context. Understand
 
 **Project Instructions** is a text field in the Project settings. Whatever you put here applies to every conversation in that Project. This is where behavioural rules live: tone, workflow, session structure, git conventions. Paste the contents of `project-instructions-master.md` here and customise it for your working style.
 
-**Project Knowledge** is for file uploads and text snippets. Add static reference material here: API documentation, architecture specs, style guides, or credentials (see below). Claude can search these during conversations but they are read-only inputs, not living documents.
+**Project Knowledge** is for reference material that Claude can search during conversations. It supports file uploads, text snippets, and a native GitHub integration. When you connect a GitHub repo here, Claude can read the repo contents directly as project knowledge. The files appear as read-only reference within each conversation, but you update them between conversations via git (commits, merges, PRs), and Claude picks up the changes in the next conversation.
 
-The three core documents (HANDOVER.md, TODO.md, CHANGELOG.md) live in a GitHub repo, not in Project Knowledge. They change every session and need version control.
+This is how the three core documents work: they live in a GitHub repo, connected to your Project via the GitHub integration in Project Knowledge. Claude reads them at the start of each session. At the end of a session, Claude uses a PAT to push updates back to the repo. The updated docs are then available for the next conversation automatically.
 
 ### Step by step
 
 1. **Fork this repo.** Make your fork private (see repo structure below). Customise the templates for your own use.
 
-2. **Create a GitHub Personal Access Token (PAT).** Go to GitHub > Settings > Developer settings > Personal access tokens. Fine-grained tokens are recommended. Set the following permissions on your project management repo:
-   - **Contents**: Read and write (required for Claude to read and update the living docs)
-   - **Pull requests**: Read and write (if you want Claude to create PRs for you to review before merging)
+2. **Connect the repo to your Project.** In your Claude Project, go to Project Knowledge, click the **+** button, and select **GitHub**. Connect your forked repo. Claude can now read all the files in the repo as project knowledge.
+
+3. **Create a GitHub Personal Access Token (PAT).** This is needed for Claude to write back to the repo (committing updates, creating branches and PRs). Go to GitHub > Settings > Developer settings > Personal access tokens. Fine-grained tokens are recommended. Scope the token to your project management repo only, with these permissions:
+   - **Contents**: Read and write (required for Claude to update the living docs)
+   - **Pull requests**: Read and write (required if you want Claude to create PRs for you to review before merging)
    - Set a sensible expiry. Shorter is safer. You can always generate a new one.
 
-3. **Add the PAT to Project Knowledge.** Create a text snippet or file in your Project Knowledge called something like `github_access_token` containing the token. Claude will use this to authenticate with your repo. Do not commit this token to any repo. When the token expires, replace it in Project Knowledge with a new one.
+4. **Add the PAT to Project Knowledge.** Click **+** in Project Knowledge and select **Add text content**. Name it something like `Github access token` and paste the token value. Claude will use this to authenticate when pushing changes. Do not commit this token to any repo.
 
-4. **Paste `project-instructions-master.md` into Project Instructions.** Customise the placeholder sections for your project.
+5. **Paste `project-instructions-master.md` into Project Instructions.** Customise the placeholder sections for your project.
 
-5. **If using Claude Code**, copy `CLAUDE.md` to the root of your development repo and fill in the project-specific details.
+6. **If using Claude Code**, copy `CLAUDE.md` to the root of your development repo and fill in the project-specific details.
 
-6. **Start a session.** Claude reads the living docs from your repo before doing anything. At the end of each session, Claude proposes updates for your approval, then commits and pushes once approved.
+7. **Start a session.** Claude reads the living docs from your connected repo before doing anything. At the end of each session, Claude proposes updates for your approval, then commits and pushes once approved.
 
 ### Repo structure: keep docs and code separate
 
