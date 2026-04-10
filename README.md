@@ -24,14 +24,60 @@ A three-document system that acts as persistent memory between sessions, plus su
 
 **CLAUDE.md** goes in the root of every repo that Claude Code will work on. It covers project-specific rules, file structure, testing commands, conventions, and a "What NOT to do" section.
 
-## How to use this
+## Setting up a Claude Project
 
-1. Fork or clone this repo.
-2. When starting a new Claude Project, copy the three core document templates into a `Project Management/` directory in your project's repo.
-3. Paste the contents of `project-instructions-master.md` into your Claude Project's Instructions field. Customise the placeholder sections.
-4. If the project involves Claude Code, copy `CLAUDE.md` to your repo root and fill in the project-specific details.
-5. At the start of every session, Claude reads the living docs before doing anything else.
-6. At the end of every session, Claude proposes updates to the three core documents for your approval before committing.
+When you create a Claude Project, you have two places to add context. Understanding the distinction matters.
+
+**Project Instructions** is a text field in the Project settings. Whatever you put here applies to every conversation in that Project. This is where behavioural rules live: tone, workflow, session structure, git conventions. Paste the contents of `project-instructions-master.md` here and customise it for your working style.
+
+**Project Knowledge** is for file uploads and text snippets. Add static reference material here: API documentation, architecture specs, style guides, or credentials (see below). Claude can search these during conversations but they are read-only inputs, not living documents.
+
+The three core documents (HANDOVER.md, TODO.md, CHANGELOG.md) live in a GitHub repo, not in Project Knowledge. They change every session and need version control.
+
+### Step by step
+
+1. **Fork this repo.** Make your fork private (see repo structure below). Customise the templates for your own use.
+
+2. **Create a GitHub Personal Access Token (PAT).** Go to GitHub > Settings > Developer settings > Personal access tokens. Fine-grained tokens are recommended. Set the following permissions on your project management repo:
+   - **Contents**: Read and write (required for Claude to read and update the living docs)
+   - **Pull requests**: Read and write (if you want Claude to create PRs for you to review before merging)
+   - Set a sensible expiry. Shorter is safer. You can always generate a new one.
+
+3. **Add the PAT to Project Knowledge.** Create a text snippet or file in your Project Knowledge called something like `github_access_token` containing the token. Claude will use this to authenticate with your repo. Do not commit this token to any repo. When the token expires, replace it in Project Knowledge with a new one.
+
+4. **Paste `project-instructions-master.md` into Project Instructions.** Customise the placeholder sections for your project.
+
+5. **If using Claude Code**, copy `CLAUDE.md` to the root of your development repo and fill in the project-specific details.
+
+6. **Start a session.** Claude reads the living docs from your repo before doing anything. At the end of each session, Claude proposes updates for your approval, then commits and pushes once approved.
+
+### Repo structure: keep docs and code separate
+
+Your project management documents (HANDOVER.md, TODO.md, CHANGELOG.md) should live in their own private repo, separate from your development code. Reasons:
+
+- **Access control.** The PAT you give Claude only needs access to the docs repo, not your codebase. Smaller blast radius if a token leaks.
+- **Cleaner history.** Documentation commits (session notes, decision logs) don't clutter your development commit history.
+- **Different audiences.** Your dev repo might be public or shared with a team. Your project management docs contain decisions, priorities, and sometimes sensitive context that doesn't belong in a public codebase.
+
+A typical layout:
+
+```
+github.com/you/myproject              # development repo (public or private)
+github.com/you/myproject-docs          # project management repo (private)
+  ├── HANDOVER.md
+  ├── TODO.md
+  └── CHANGELOG.md
+```
+
+If your project is simple enough that a separate repo feels like overkill, a `Project Management/` directory in your dev repo works fine. Just be aware of the trade-offs above.
+
+### PAT hygiene
+
+- Use fine-grained tokens scoped to specific repos, not classic tokens with broad access.
+- Set the shortest expiry you can tolerate. 30 days is a reasonable default.
+- When a token expires, Claude will get a 401 or 403 error on push. Generate a new token and update the Project Knowledge file.
+- Never commit tokens to a repo. They live in Project Knowledge only.
+- If you suspect a token has been exposed, revoke it immediately in GitHub > Settings > Developer settings > Personal access tokens.
 
 ## Key principles
 
