@@ -71,4 +71,4 @@ This work is licensed under the Creative Commons Attribution 4.0 International L
 
 You are free to share, adapt, and build upon this material for any purpose, including commercial use, as long as you give appropriate credit.
 
-See [LICENCE](LICENCE) for full terms.
+See [LICENSE](LICENSE) for full terms.
