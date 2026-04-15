@@ -112,9 +112,15 @@ Claude cannot write to GitHub through the built-in GitHub integration in Claude 
 
 **Never put the token in any documentation, commit message, README, HANDOVER, or any other file that gets committed to the repo.** The token lives only in the Claude Project Knowledge file, which is not version-controlled.
 
-### Workflow template
+### Workflow modes
 
-Paste the following block into your project instructions, replacing the placeholders:
+There are two ways to handle commits. Choose one per project and include the matching template in your project instructions. Delete the one you don't use.
+
+**Option A: Direct push** is simpler. Claude commits and pushes straight to the default branch. You review the proposed changes in conversation before approving the commit. Good for solo operators and projects where speed matters more than a formal review gate.
+
+**Option B: Branch and merge** gives you a review step outside of the conversation. Claude creates a feature branch, commits to it, and pushes the branch. You then open a pull request on GitHub, review the diff, and merge. Good for teams, shared repos, or anyone who wants an explicit approval step before changes hit the main branch. Note that Claude cannot create pull requests (that requires `api.github.com`, which is blocked by the egress proxy), so the PR is your responsibility.
+
+#### Option A: Direct push template
 
 ```
 Clone the repo at the start of any session that needs it using the token from the Github_access_token project file:
@@ -133,6 +139,40 @@ git commit -m "your message"
 git push
 
 Clone once per session. Batch edits. Push once at the end.
+
+Use git commands only. The egress proxy allows github.com but blocks api.github.com and raw.githubusercontent.com.
+
+If a push returns 401/403, the token has expired. Ask for a new one.
+```
+
+#### Option B: Branch and merge template
+
+```
+Clone the repo at the start of any session that needs it using the token from the Github_access_token project file:
+
+git clone https://TOKEN@github.com/YOUR_USERNAME/YOUR_REPO.git /home/claude/repo
+
+Read and edit files directly in /home/claude/repo/ using view, create_file, and str_replace tools.
+
+At the start of each session, create a feature branch:
+
+cd /home/claude/repo
+git checkout -b SESSION_BRANCH_NAME
+
+Use descriptive branch names: feature/add-auth-flow, fix/redis-timeout, docs/update-handover.
+
+When committing:
+
+cd /home/claude/repo
+git config user.email "YOUR_EMAIL"
+git config user.name "YOUR_DISPLAY_NAME"
+git add -A
+git commit -m "your message"
+git push -u origin SESSION_BRANCH_NAME
+
+Clone once per session. Batch edits. Push once at the end.
+
+Claude cannot create pull requests. After pushing, Claude will provide the GitHub link to open a PR. You review and merge.
 
 Use git commands only. The egress proxy allows github.com but blocks api.github.com and raw.githubusercontent.com.
 
