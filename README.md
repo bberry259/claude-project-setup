@@ -27,11 +27,12 @@ A three-document system that acts as persistent memory between sessions, plus su
 ## How to use this
 
 1. Fork or clone this repo.
-2. When starting a new Claude Project, copy the three core document templates into a `Project Management/` directory in your project's repo.
-3. Paste the contents of `project-instructions-master.md` into your Claude Project's Instructions field. Customise the placeholder sections.
-4. If the project involves Claude Code, copy `CLAUDE.md` to your repo root and fill in the project-specific details.
-5. At the start of every session, Claude reads the living docs before doing anything else.
-6. At the end of every session, Claude proposes updates to the three core documents for your approval before committing.
+2. When starting a new Claude Project, copy the three core document templates into a `Project Management/` directory in your project's repo. **Make the repo private.** Your living documents will contain operational state and infrastructure details that should not be public.
+3. Set up GitHub write access. Claude's built-in GitHub integration is read-only. To let Claude commit and push, create a Fine-Grained Personal Access Token (GitHub > Settings > Developer settings > Fine-grained tokens) with Contents read/write permission on your repo. Save it as a Project Knowledge file called `Github_access_token` in your Claude Project. Do not put the token in any file that gets committed to the repo. The `project-instructions-master.md` file has the full workflow template.
+4. Paste the contents of `project-instructions-master.md` into your Claude Project's Instructions field. Customise the placeholder sections, including the GitHub workflow block with your repo URL, email, and display name.
+5. If the project involves Claude Code, copy `CLAUDE.md` to your repo root and fill in the project-specific details.
+6. At the start of every session, Claude reads the living docs before doing anything else.
+7. At the end of every session, Claude proposes updates to the three core documents for your approval before committing.
 
 ## Key principles
 
