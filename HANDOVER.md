@@ -73,6 +73,21 @@ When to include: any project that uses external services, APIs, or authenticatio
 
 For each account: service name, what it's used for, where the credentials are stored (never the credentials themselves), and expiry dates where applicable. Note which credentials are in environment variables vs project files vs secrets managers.
 
+**Never put tokens, keys, or passwords in this document or any other file committed to the repo.**
+
+```
+GitHub PAT
+- Purpose: allows Claude to clone, commit, and push to the project repo
+- Stored in: Claude Project Knowledge file called "Github_access_token"
+- Expiry: [date. Check and rotate before it lapses]
+- Scope: Contents read/write on [repo name]
+
+[Service name]
+- Purpose: [what it's used for]
+- Stored in: [where the credentials live]
+- Expiry: [if applicable]
+```
+
 ### Non-negotiable rules
 
 When to include: any project dealing with money, production systems, user data, live services, or anything with real-world consequences.

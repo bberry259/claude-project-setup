@@ -38,6 +38,7 @@ Examples of what goes here:
 - The `-it` flag on `docker exec` silently swallows output over SSH. Use `-i` only.
 - Join key across tables is `slug`, not `id`. Joining on `id` returns zero rows silently because the format differs between tables.
 - Vercel environment variables set via CLI don't take effect until the next deployment, not the current one.
+- Claude's GitHub integration is read-only. The "Sync now" button in Claude Projects pulls repo contents into the project context but cannot push changes back. To write to GitHub, Claude must clone via a Personal Access Token and use git commands. The egress proxy allows github.com but blocks api.github.com and raw.githubusercontent.com, so git clone/push only.
 
 ---
 

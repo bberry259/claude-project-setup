@@ -98,18 +98,48 @@ Once approved, Claude commits the changes to the repo in a single push.
 
 If the session only involved code changes (no documentation updates needed), commit the code directly with a clear commit message. Documentation proposals are for the living project management docs only.
 
-## Git discipline
+## GitHub access
 
-Clone the relevant repo at the start of any session that needs it:
+Claude cannot write to GitHub through the built-in GitHub integration in Claude Projects. That integration syncs repo contents into the project as read-only context. To write back (commit and push), Claude needs to clone the repo using a Personal Access Token via git commands.
 
-```bash
-git clone https://<TOKEN>@github.com/bberry259/<REPO>.git /home/claude/repo
+**Important:** The repo you connect should be private. Your project's living documents may contain infrastructure details, credentials references, and operational state that should not be publicly visible. Keep the repo private and control access through GitHub's collaborator settings.
+
+### Setup (do this once per project)
+
+1. Go to GitHub > Settings > Developer settings > Personal access tokens > Fine-grained tokens.
+2. Create a new token scoped to the specific repo. Under Repository permissions, set **Contents** to **Read and write**. Set expiry to whatever suits your security posture (90 days is a reasonable default).
+3. In your Claude Project, add a Project Knowledge file called `Github_access_token`. Paste the token as the only content of that file. Nothing else in the file.
+
+**Never put the token in any documentation, commit message, README, HANDOVER, or any other file that gets committed to the repo.** The token lives only in the Claude Project Knowledge file, which is not version-controlled.
+
+### Workflow template
+
+Paste the following block into your project instructions, replacing the placeholders:
+
+```
+Clone the repo at the start of any session that needs it using the token from the Github_access_token project file:
+
+git clone https://TOKEN@github.com/YOUR_USERNAME/YOUR_REPO.git /home/claude/repo
+
+Read and edit files directly in /home/claude/repo/ using view, create_file, and str_replace tools.
+
+When committing:
+
 cd /home/claude/repo
-git config user.email "bberry259@users.noreply.github.com"
-git config user.name "bberry259"
+git config user.email "YOUR_EMAIL"
+git config user.name "YOUR_DISPLAY_NAME"
+git add -A
+git commit -m "your message"
+git push
+
+Clone once per session. Batch edits. Push once at the end.
+
+Use git commands only. The egress proxy allows github.com but blocks api.github.com and raw.githubusercontent.com.
+
+If a push returns 401/403, the token has expired. Ask for a new one.
 ```
 
-Token is stored in the Project's files. Clone once per session.
+For the email field, you can use your GitHub noreply address (`username@users.noreply.github.com`), a project-specific email, or any address you want appearing on commits. The display name can be anything. Some people use a distinct name like "$USER Claude" to distinguish AI-authored commits in the git log.
 
 ### Operational rules
 
@@ -118,9 +148,6 @@ Token is stored in the Project's files. Clone once per session.
 - Before ending any session, run `git status` and commit any untracked or modified files. Files that aren't committed are invisible to future sessions.
 - Separate meaningful code changes from automated parameter drift or generated output. Use distinct commits with clear messages.
 - If a file is gitignored but important (config files, data directories, local environment files), note its existence and contents in HANDOVER.md so future sessions know it's there.
-- If push returns 401/403, the token has expired. Ask for a new one.
-
-`api.github.com` and `raw.githubusercontent.com` are blocked by the egress proxy. Use git commands only.
 
 ## Claude Code
 
